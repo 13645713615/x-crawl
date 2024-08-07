@@ -11,3 +11,5 @@ test/server/index.js
 
 docs/.vitepress/cache
 docs/.vitepress/dist
+
+.history

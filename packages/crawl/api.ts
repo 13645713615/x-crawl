@@ -61,24 +61,24 @@ interface InfoPageConfig extends InfoCommonConfig {
 
   browser: Browser
   onCrawlItemComplete:
-    | ((crawlPageSingleResult: CrawlPageSingleResult) => void)
-    | undefined
+  | ((crawlPageSingleResult: CrawlPageSingleResult) => void)
+  | undefined
 }
 
 interface InfoHTMLConfig extends InfoCommonConfig {
   type: 'html'
 
   onCrawlItemComplete:
-    | ((crawlHTMLSingleResult: CrawlHTMLSingleResult) => void)
-    | undefined
+  | ((crawlHTMLSingleResult: CrawlHTMLSingleResult) => void)
+  | undefined
 }
 
 interface InfoDataConfig<T> extends InfoCommonConfig {
   type: 'data'
 
   onCrawlItemComplete:
-    | ((crawlDataSingleResult: CrawlDataSingleResult<T>) => void)
-    | undefined
+  | ((crawlDataSingleResult: CrawlDataSingleResult<T>) => void)
+  | undefined
 }
 
 interface InfoFileConfig extends InfoCommonConfig {
@@ -87,16 +87,16 @@ interface InfoFileConfig extends InfoCommonConfig {
   saveFileErrorArr: { message: string; valueOf: () => number }[]
   saveFilePendingQueue: Promise<any>[]
   onCrawlItemComplete:
-    | ((crawlFileSingleResult: CrawlFileSingleResult) => void)
-    | undefined
+  | ((crawlFileSingleResult: CrawlFileSingleResult) => void)
+  | undefined
   onBeforeSaveItemFile:
-    | ((info: {
-        id: number
-        fileName: string
-        filePath: string
-        data: Buffer
-      }) => Promise<Buffer | void> | Buffer | void)
-    | undefined
+  | ((info: {
+    id: number
+    fileName: string
+    filePath: string
+    data: Buffer
+  }) => Promise<Buffer | void> | Buffer | void)
+  | undefined
 }
 
 // Single crawl result
@@ -162,8 +162,8 @@ interface CrawlPageConfig {
   selectFingerprintIndexs: number[]
 
   onCrawlItemComplete:
-    | ((crawlPageSingleResult: CrawlPageSingleResult) => void)
-    | undefined
+  | ((crawlPageSingleResult: CrawlPageSingleResult) => void)
+  | undefined
 }
 
 interface CrawlHTMLConfig {
@@ -173,8 +173,8 @@ interface CrawlHTMLConfig {
   selectFingerprintIndexs: number[]
 
   onCrawlItemComplete:
-    | ((crawlHTMLSingleResult: CrawlHTMLSingleResult) => void)
-    | undefined
+  | ((crawlHTMLSingleResult: CrawlHTMLSingleResult) => void)
+  | undefined
 }
 
 interface CrawlDataConfig {
@@ -184,8 +184,8 @@ interface CrawlDataConfig {
   selectFingerprintIndexs: number[]
 
   onCrawlItemComplete:
-    | ((crawlDataSingleResult: CrawlDataSingleResult<any>) => void)
-    | undefined
+  | ((crawlDataSingleResult: CrawlDataSingleResult<any>) => void)
+  | undefined
 }
 
 interface CrawlFileConfig {
@@ -195,16 +195,16 @@ interface CrawlFileConfig {
   selectFingerprintIndexs: number[]
 
   onBeforeSaveItemFile:
-    | ((info: {
-        id: number
-        fileName: string
-        filePath: string
-        data: Buffer
-      }) => Promise<Buffer | void> | Buffer | void)
-    | undefined
+  | ((info: {
+    id: number
+    fileName: string
+    filePath: string
+    data: Buffer
+  }) => Promise<Buffer | void> | Buffer | void)
+  | undefined
   onCrawlItemComplete:
-    | ((crawlDataSingleResult: CrawlDataSingleResult<any>) => void)
-    | undefined
+  | ((crawlDataSingleResult: CrawlDataSingleResult<any>) => void)
+  | undefined
 }
 
 // API unite config
@@ -576,9 +576,9 @@ function createCrawlPageConfig(
     // string | CrawlPageDetailTargetConfig | (string | CrawlPageDetailTargetConfig)[] 处理
     advancedDetailTargetsConfig.detailTargets = transformTargetToDetailTargets(
       originalConfig as
-        | string
-        | CrawlPageDetailTargetConfig
-        | (string | CrawlPageDetailTargetConfig)[]
+      | string
+      | CrawlPageDetailTargetConfig
+      | (string | CrawlPageDetailTargetConfig)[]
     )
   }
 
@@ -658,9 +658,9 @@ function createCrawlHTMLConfig(
 
     advancedDetailTargetsConfig.detailTargets = transformTargetToDetailTargets(
       originalConfig as
-        | string
-        | CrawlDataDetailTargetConfig
-        | (string | CrawlDataDetailTargetConfig)[]
+      | string
+      | CrawlDataDetailTargetConfig
+      | (string | CrawlDataDetailTargetConfig)[]
     )
   }
 
@@ -704,9 +704,9 @@ function createCrawlDataConfig<T>(
     // string | CrawlDataDetailTargetConfig | (string | CrawlDataDetailTargetConfig)[] 处理
     advancedDetailTargetsConfig.detailTargets = transformTargetToDetailTargets(
       originalConfig as
-        | string
-        | CrawlDataDetailTargetConfig
-        | (string | CrawlDataDetailTargetConfig)[]
+      | string
+      | CrawlDataDetailTargetConfig
+      | (string | CrawlDataDetailTargetConfig)[]
     )
   }
 
@@ -751,9 +751,9 @@ function createCrawlFileConfig(
     // string | CrawlFileDetailTargetConfig | (string | CrawlFileDetailTargetConfig)[] 处理
     advancedDetailTargetsConfig.detailTargets = transformTargetToDetailTargets(
       originalConfig as
-        | string
-        | CrawlFileDetailTargetConfig
-        | (string | CrawlFileDetailTargetConfig)[]
+      | string
+      | CrawlFileDetailTargetConfig
+      | (string | CrawlFileDetailTargetConfig)[]
     )
   }
 
@@ -855,6 +855,10 @@ async function pageSingleCrawlHandle(
 
     if (detailTargetConfig.headers) {
       await page.setExtraHTTPHeaders(detailTargetConfig.headers)
+    }
+
+    if (detailTargetConfig.handleBefore) {
+      await detailTargetConfig.handleBefore(page)
     }
 
     response = await page.goto(detailTargetConfig.url, {
@@ -1354,15 +1358,13 @@ export function createCrawlFile(crawlBaseConfig: CrawlBaseConfig) {
         'Save finish:'
       )}
              ${logSuccess(
-               `Success - total: ${
-                 succssIds.length
-               }, targets id: [ ${succssIds.join(', ')} ]`
-             )}
+        `Success - total: ${succssIds.length
+        }, targets id: [ ${succssIds.join(', ')} ]`
+      )}
                ${logError(
-                 `Error - total: ${
-                   errorIds.length
-                 }, targets id: [ ${errorIds.join(', ')} ]`
-               )}
+        `Error - total: ${errorIds.length
+        }, targets id: [ ${errorIds.join(', ')} ]`
+      )}
         `)
     }
 

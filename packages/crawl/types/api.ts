@@ -85,14 +85,15 @@ export interface CrawlPageDetailTargetConfig extends CrawlCommonConfig {
   cookies?: PageCookies | null
   priority?: number
   viewport?: Viewport | null
+  handleBefore?: (page: Page) => Promise<void> | void
   fingerprint?:
-    | (DetailTargetFingerprintCommon & {
-        maxWidth?: number
-        minWidth?: number
-        maxHeight?: number
-        minHidth?: number
-      })
-    | null
+  | (DetailTargetFingerprintCommon & {
+    maxWidth?: number
+    minWidth?: number
+    maxHeight?: number
+    minHidth?: number
+  })
+  | null
 }
 
 export interface CrawlHTMLDetailTargetConfig extends CrawlCommonConfig {
