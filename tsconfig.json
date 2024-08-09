@@ -13,6 +13,7 @@
     "outDir": "./publish",
     "emitDeclarationOnly": false,
     "baseUrl": ".",
+    // "declaration": true
     "paths": {
       "packages/*": ["./packages"],
       "publish/*": ["./publish"]
