@@ -87,8 +87,8 @@ function createContentConfig(
       agent: proxyUrl
         ? new HttpsProxyAgent(proxyUrl)
         : protocol === 'http:'
-        ? new http.Agent()
-        : new https.Agent(),
+          ? new http.Agent()
+          : new https.Agent(),
 
       protocol,
       hostname,
@@ -97,7 +97,7 @@ function createContentConfig(
 
       method: method?.toLocaleUpperCase() ?? 'GET',
       headers: {},
-      timeout
+      timeout: 10000,
     },
 
     protocol: protocol as 'http:' | 'https:',
@@ -110,26 +110,43 @@ function createContentConfig(
 }
 
 export function request(config: LoaderCrawlDataDetail & LoaderCrawlFileDetail) {
+
+  const startAt = Date.now();
+
   return new Promise<Request>((resolve, reject) => {
     const { requestConfig, protocol, data } = createContentConfig(config)
 
     function handleRes(res: IncomingMessage) {
       const { statusCode, headers } = res
 
-      const container: Buffer[] = []
+      if (statusCode && statusCode >= 300 && statusCode < 400 && headers.location) {
 
-      res.on('data', (chunk) => container.push(chunk))
+        const usedTime = Date.now() - startAt;
+        const newTimeout = (requestConfig.timeout ?? 10000) - usedTime;
 
-      res.on('end', () => {
-        const data = Buffer.concat(container)
-        const resolveRes: Request = {
-          statusCode,
-          headers,
-          data
+        if (newTimeout <= 0) {
+          reject(new Error(`Timeout ${requestConfig.timeout}ms`))
         }
 
-        resolve(resolveRes)
-      })
+        request({ ...config, url: headers.location, timeout: newTimeout }).then(resolve).catch(reject)
+
+      } else {
+        const container: Buffer[] = []
+
+        res.on('data', (chunk) => container.push(chunk))
+
+        res.on('end', () => {
+          const data = Buffer.concat(container)
+          const resolveRes: Request = {
+            statusCode,
+            headers,
+            data
+          }
+
+          resolve(resolveRes)
+        })
+      }
+
     }
 
     const req: ClientRequest =
